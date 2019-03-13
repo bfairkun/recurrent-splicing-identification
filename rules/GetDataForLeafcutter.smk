@@ -27,13 +27,14 @@ rule download_snaptron_metadata:
         """
         wget -O {output} {params}
         """
-
+Chromosome_list = ["chr" + str(i) for i in range(1,23)] + ["chrX", "chrY"]
 rule download_chrom_sizes:
     output:
-        "MiscData/hg38.chrome.sizes"
+        chromesizes = "MiscData/hg38.chrome.sizes",
+        chromosomal_genome_bed = "MiscData/bedfiles/ChromosomalGenome.bed"
     shell:
         """
-        wget -q -O - https://raw.githubusercontent.com/igvteam/igv/master/genomes/sizes/hg38.chrom.sizes | awk -F '\\t' -v OFS='\\t' 'NR<=24' > {output}
+        wget -q -O - https://raw.githubusercontent.com/igvteam/igv/master/genomes/sizes/hg38.chrom.sizes | awk -F '\\t' -v OFS='\\t' 'NR<=24' | tee {output.chromesizes} | awk -F '\\t' -v OFS='\\t' '{{ print $1, "1", $2 }}' > {output.chromosomal_genome_bed}
         """
 
 # pseudocode:
@@ -93,15 +94,15 @@ rule make_junc_files:
 # # For large numbers of samples, it may be more manageable to do paralelize
 # # leafcutter by chromosome. Do this by making .junc files per chromosome.
 
-# rule make_bed_file_for_each_chrom:
-#     input:
-#         "MiscData/hg38.chrome.sizes"
-#     output:
-#         "MiscData/TargetBedFilesPerChrom/{chrom}.bed"
-#     shell:
-#         """
-#         awk -F'\\t' -v OFS='\\t' '$1=="{wildcards.chrom}" {{print $1, 1, $2}}' {input} > {output}
-#         """
+rule make_bed_file_for_each_chrom:
+    input:
+        "MiscData/hg38.chrome.sizes"
+    output:
+        "MiscData/bedfiles/{chrom}.bed"
+    shell:
+        """
+        awk -F'\\t' -v OFS='\\t' '$1=="{wildcards.chrom}" {{print $1, 1, $2}}' {input} > {output}
+        """
 
 # rule make_BedtoolsIntersectBatch_input_files:
 #     input:
