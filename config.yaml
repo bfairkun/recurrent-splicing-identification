@@ -1,0 +1,24 @@
+# This file should contain everything to configure the workflow on a global scale.
+# In case of sample based data, it should be complemented by a samples.tsv file that contains
+# one row per sample. It can be parsed easily via pandas.
+
+# tab-separated samples list of snaptron databases and associated wget links
+# (SRA2, GTEX, TCGA)
+samples: samples.tsv
+
+
+# Bed file to filter junctions on for leafcutter clustering. This is useful
+# because clustering all junctions for all samples can be a hassle. If none is
+# provided, will default to all junctions
+junction_intersect_bed:
+
+leafcutter_cluster_by_chrom: True
+
+# list of .junc files (one file per line) to use for leafcutter clustering.
+# Leave blank to use default of all junc files created during snakemake
+# pipeline. Caution when using this... Must make sure that junction files
+# already exist before starting the snakemake.
+# (I haven't written this Snakemake pipeline in the conventional way to do that
+# checking for you, as I would prefer avoiding making DAGS with tens of
+# thousands of files)
+juncfiles: "/home/bjf79/myhome_yang/recurrent-splicing-identification/headtest"
