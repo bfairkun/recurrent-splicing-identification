@@ -1,27 +1,3 @@
-# If juncfile for leafcutter_cluster is given in config, use it, and don't
-# check that the .junc count files exist (To avoid creating DAGS that may have
-# tens of thousands of files)
-if config["juncfiles"]:
-    juncfiles = config["juncfiles"]
-    make_junc_files_log = []
-else:
-    juncfiles = "junction_filelist/AllSamples"
-    make_junc_files_log = expand ( "logs/make_junc_files/{sample}.log", sample=snaptron_samples.index),
-
-if config["junction_intersect_bed"]:
-    junction_intersect_bed = config["junction_intersect_bed"]
-else:
-    junction_intersect_bed = "MiscData/bedfiles/ChromosomalGenome.bed"
-
-Samples_TargetJunctions = os.path.basename(juncfiles) + "_" + os.path.basename(junction_intersect_bed)
-
-if config["leafcutter_cluster_by_chrom"]:
-    ToGather = expand("leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfile.{chromosome}.txt", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
-else:
-    ToGather = expand("leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfile.{chromosome}.txt", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
-
-
-
 rule prepare_juncfiles_for_clustering:
     input:
         bedfile = junction_intersect_bed,
@@ -35,15 +11,79 @@ rule prepare_juncfiles_for_clustering:
     shell:
         """
         mkdir -p leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles
-        awk -F'\\t' -v OFS='\\t' '{{ print $1,  "{input.bedfile}", "{input.chromosome_beds}" ,"leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/" $1  }}' {juncfiles} | python scripts/BedtoolsIntserectBatch.py - 2> {log}
-        awk -F'\\t' -v OFS='\\t' '{{ "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/" $1  }}' {juncfiles} > {output.leafcutter_juncfile}
+        awk -F'\\t' -v OFS='\\t' '{{  print $1,  "{input.bedfile}", "{input.chromosome_beds}" ,"leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/" gensub("/",".","g",$1)  }}' {juncfiles} | python scripts/BedtoolsIntserectBatch.py - 2> {log}
+        awk -F'\\t' -v OFS='\\t' '{{ print  "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/"  gensub("/",".","g",$1) }}' {juncfiles} > {output.leafcutter_juncfile}
         """
 
-rule gather_prepares:
+rule leafcutter_cluster:
     input:
-        leafcutter_juncfile = ToGather
+        leafcutter_juncfile = "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfile.{{chromosome}}.txt".format(Samples_TargetJunctions=Samples_TargetJunctions),
     output:
-        "Gathered"
+        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind_numers.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    log:
+        "logs/leafcutter_cluster/{Samples_TargetJunctions}/{{chromosome}}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    params:
+        rundir = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    shell:
+        """
+        leafcutter_cluster.py -j {input.leafcutter_juncfile} -r {params.rundir} &> {log}
+        """
+
+rule rearrange_leafcutter_cluster_counts:
+    input:
+        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    output:
+        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
+    shell:
+        """
+        python3 scripts/RearrangeColumnsAndSplitFractionsOfLeafcutterClusterCountTable.py {input} {output}
+        """
+
+rule make_numers_and_denoms:
+    input:
+        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    output:
+        numers = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.numers".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        denoms = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.denoms".format(Samples_TargetJunctions=Samples_TargetJunctions),
+    shell:
+        """
+        zcat {input} | perl -lne 'if ($.==1) {{print}} else {{$_ =~ s/\d+\///g; print}}' > {output.denoms}
+        zcat {input} | perl -lne 'if ($.==1) {{print}} else {{$_ =~ s/\/\d+//g; print}}' > {output.numers}
+        """
+
+rule merge_numers_and_denoms:
+    input:
+        numers_to_gather = numers_to_gather,
+        denoms_to_gather = denoms_to_gather
+    output:
+        # merged count tables. Include a header, for easier reading into R
+        numers_merged = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind.counts.numers.gz".format(Samples_TargetJunctions = Samples_TargetJunctions),
+        denoms_merged = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind.counts.denoms.gz".format(Samples_TargetJunctions = Samples_TargetJunctions),
+
+        # leafcutter differential splicing analysis scripts expect a header without an entry for the row names.
+        numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    shell:
+        """
+        awk 'NR==1 {{print}} FNR>1 {{print}}' {input.numers_to_gather} | gzip - > {output.numers_merged}
+        awk 'NR==1 {{print}} FNR>1 {{print}}' {input.denoms_to_gather} | gzip - > {output.denoms_merged}
+        awk 'NR==1 {{printf $2; for (i=3; i <= NF; i++) printf FS$i; print NL}} FNR>1 {{print}}' {input.numers_to_gather} | gzip - > {output.numers_merged_for_leafcutter_analysis}
+        """
+
+rule delete_temp_files:
+    """
+    Used a rule to do this rather than the temp() snakemake directive for
+    temporary files because leafcutter produces a file for each junction file.
+    So using a rule with 'rm -rf' avoids adding all those potentially thousands
+    of files to the DAG
+    """
+    input:
+        numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    output:
+        "logs/delete_temp_files/{Samples_TargetJunctions}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
+    shell:
+        "rm -rf {temporary_clusterfiles} 2> {output}"
+        
 
 # rule leafcutter_cluster:
 #     input:

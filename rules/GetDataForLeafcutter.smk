@@ -27,7 +27,7 @@ rule download_snaptron_metadata:
         """
         wget -O {output} {params}
         """
-Chromosome_list = ["chr" + str(i) for i in range(1,23)] + ["chrX", "chrY"]
+
 rule download_chrom_sizes:
     output:
         chromesizes = "MiscData/hg38.chrome.sizes",
