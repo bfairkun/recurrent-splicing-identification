@@ -34,15 +34,11 @@ else:
     junction_intersect_bed = "MiscData/bedfiles/ChromosomalGenome.bed"
 
 Samples_TargetJunctions = os.path.basename(juncfiles) + "_" + os.path.basename(junction_intersect_bed)
+temporary_clusterfiles = config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/".format(Samples_TargetJunctions=Samples_TargetJunctions)
 
 if config["leafcutter_cluster_by_chrom"]:
-    numers_to_gather = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
-    denoms_to_gather = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.denoms", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
-    temporary_clusterfiles = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
+    numers_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
+    denoms_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.denoms", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
 else:
-    numers_to_gather = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
-    denoms_to_gather = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.denoms", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
-    temporary_clusterfiles = expand("leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
-
-
-
+    numers_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
+    denoms_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.denoms", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")

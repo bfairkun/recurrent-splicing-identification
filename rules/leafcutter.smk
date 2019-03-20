@@ -6,25 +6,27 @@ rule prepare_juncfiles_for_clustering:
         juncfile = juncfiles
     output:
         leafcutter_juncfile = "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfile.{{chromosome}}.txt".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        scratch_dir_touch = config["scratch_prefix"] + "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/{{chromosome}}/touch".format(Samples_TargetJunctions=Samples_TargetJunctions),
     log:
         "logs/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/{{chromosome}}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
     shell:
         """
-        mkdir -p leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles
-        awk -F'\\t' -v OFS='\\t' '{{  print $1,  "{input.bedfile}", "{input.chromosome_beds}" ,"leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/" gensub("/",".","g",$1)  }}' {juncfiles} | python scripts/BedtoolsIntserectBatch.py - 2> {log}
-        awk -F'\\t' -v OFS='\\t' '{{ print  "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/"  gensub("/",".","g",$1) }}' {juncfiles} > {output.leafcutter_juncfile}
+        # mkdir -p leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/{wildcards.chromosome}/
+        touch {output.scratch_dir_touch}
+        awk -F'\\t' -v OFS='\\t' '{{  print $1,  "{input.bedfile}", "{input.chromosome_beds}" ,"{config[scratch_prefix]}leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/{wildcards.chromosome}/" gensub("/",".","g",$1)  }}' {juncfiles} | python scripts/BedtoolsIntserectBatch.py - 2> {log}
+        awk -F'\\t' -v OFS='\\t' '{{ print   "{config[scratch_prefix]}leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfiles/{wildcards.chromosome}/" gensub("/",".","g",$1) }}' {juncfiles} > {output.leafcutter_juncfile}
         """
 
 rule leafcutter_cluster:
     input:
         leafcutter_juncfile = "leafcutter/prepare_juncfiles_for_clustering/{Samples_TargetJunctions}/juncfile.{{chromosome}}.txt".format(Samples_TargetJunctions=Samples_TargetJunctions),
     output:
-        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
-        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind_numers.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+        config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind_numers.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
     log:
         "logs/leafcutter_cluster/{Samples_TargetJunctions}/{{chromosome}}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
     params:
-        rundir = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/".format(Samples_TargetJunctions=Samples_TargetJunctions)
+        rundir = config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/".format(Samples_TargetJunctions=Samples_TargetJunctions)
     shell:
         """
         leafcutter_cluster.py -j {input.leafcutter_juncfile} -r {params.rundir} &> {log}
@@ -32,9 +34,9 @@ rule leafcutter_cluster:
 
 rule rearrange_leafcutter_cluster_counts:
     input:
-        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+        config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
     output:
-        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
     shell:
         """
         python3 scripts/RearrangeColumnsAndSplitFractionsOfLeafcutterClusterCountTable.py {input} {output}
@@ -42,10 +44,10 @@ rule rearrange_leafcutter_cluster_counts:
 
 rule make_numers_and_denoms:
     input:
-        "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+        config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.rearranged.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
     output:
-        numers = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.numers".format(Samples_TargetJunctions=Samples_TargetJunctions),
-        denoms = "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.denoms".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        numers = config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.numers".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        denoms = config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{{chromosome}}/leafcutter_perind.counts.denoms".format(Samples_TargetJunctions=Samples_TargetJunctions),
     shell:
         """
         zcat {input} | perl -lne 'if ($.==1) {{print}} else {{$_ =~ s/\d+\///g; print}}' > {output.denoms}
@@ -83,48 +85,3 @@ rule delete_temp_files:
         "logs/delete_temp_files/{Samples_TargetJunctions}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
     shell:
         "rm -rf {temporary_clusterfiles} 2> {output}"
-        
-
-# rule leafcutter_cluster:
-#     input:
-#         juncfile = leafcutter_cluster_juncfiles,
-#         make_junc_files_log = make_junc_files_log
-#         # Rather than explicitly requiring that .junc files listed in juncfile
-#         # actually exist, just require the log file for all make_junc_files
-#         # output as input. This keeps the DAG from getting cluttered with tens
-#         # of thousands of files.
-#     output:
-#         "leafcutter_out/clustering/{junctionsfile}/leafcutter_perind.counts.gz".format(junctionsfile = os.path.basename(leafcutter_cluster_juncfiles) ),
-#         "leafcutter_out/clustering/{junctionsfile}/leafcutter_perind_numers.counts.gz".format(junctionsfile = os.path.basename(leafcutter_cluster_juncfiles) ),
-#     log:
-#         "logs/leafcutter_cluster/{junctionsfile}.log".format(junctionsfile = os.path.basename(leafcutter_cluster_juncfiles) ),
-#     params:
-#         rundir = "leafcutter_out/clustering/{junctionsfile}/".format(junctionsfile = os.path.basename(leafcutter_cluster_juncfiles) )
-#     shell:
-#         """
-#         leafcutter_cluster.py -j {input.juncfile} -r {params.rundir} &> {log}
-#         """
-
-# rule leafcutter_cluster_perchrom:
-#     input:
-#         juncfile = "MiscData/make_leafcutter_cluster_juncfiles/{chrom}",
-#         make_junc_files_log = "logs/make_juncfile_per_chrom/{chrom}"
-#         # Rather than explicitly requiring that .junc files listed in juncfile
-#         # actually exist, just require the log file for all make_junc_files
-#         # output as input. This keeps the DAG from getting cluttered with tens
-#         # of thousands of files.
-#     output:
-#         "leafcutter_out/clustering/AllSamples_PerChrom/{chrom}/leafcutter_perind.counts.gz",
-#         "leafcutter_out/clustering/AllSamples_PerChrom/{chrom}/leafcutter_perind_numers.counts.gz",
-#     log:
-#         "logs/leafcutter_cluster_perchrom/{chrom}.log",
-#     params:
-#         rundir = "leafcutter_out/clustering/AllSamples_PerChrom/{chrom}/"
-#     shell:
-#         """
-#         leafcutter_cluster.py -j {input.juncfile} -r {params.rundir} &> {log}
-#         """
-# # rule Make_perind_numers_file:
-
-# # rule Make_perind_denom_file:
-

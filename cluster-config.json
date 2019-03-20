@@ -1,0 +1,14 @@
+{
+  "__default__" :
+  {"account": "pi-yangili1",  "partition" : "broadwl", "mem" : 4000, "n" : 1, "name" : "{rule}-{wildcards}", "logfile": "/dev/null"},
+
+  "make_junc_files" : 
+  {"mem" : 8000, "parition":"broadwl"},
+
+  "leafcutter_cluster_perchrom" : 
+  {"mem" : 48000, "parition":"broadwl"},
+
+  "leafcutter_cluster" :
+  {"mem" : 48000, "partition":"broadwl"}
+}
+

@@ -7,6 +7,9 @@
 samples: samples.tsv
 
 
+# prefix for large computation rules for temporary files (scratchdir)
+scratch_prefix: "/scratch/midway2/bjf79/recurrent-splicing/"
+
 # Bed file to filter junctions on for leafcutter clustering. This is useful
 # because clustering all junctions for all samples can be a hassle. If none is
 # provided, will default to all junctions
@@ -21,4 +24,4 @@ leafcutter_cluster_by_chrom: True
 # (I haven't written this Snakemake pipeline in the conventional way to do that
 # checking for you, as I would prefer avoiding making DAGS with tens of
 # thousands of files)
-juncfiles: "/home/bjf79/myhome_yang/recurrent-splicing-identification/headtest"
+juncfiles:

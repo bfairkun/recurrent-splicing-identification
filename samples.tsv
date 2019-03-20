@@ -1,0 +1,4 @@
+sample	local_snaptron_file	snaptron_wget_link	local_metadata_file	metadata_wget_link
+SRA2	/project2/yangili1/snaptron/SRA2_junctions_uncompressed.gz	http://snaptron.cs.jhu.edu/data/srav2/junctions_uncompressed.bgz	/project2/yangili1/snaptron/SRA2_samples.tsv	http://snaptron.cs.jhu.edu/data/srav2/samples.tsv
+GTEX	/project2/yangili1/snaptron/GTEX_junctions_uncompressed.gz	http://snaptron.cs.jhu.edu/data/gtex/junctions_uncompressed.bgz	/project2/yangili1/snaptron/GTEX_samples.tsv	http://snaptron.cs.jhu.edu/data/gtex/samples.fields.tsv
+TCGA	/project2/yangili1/snaptron/TCGA_junctions_uncompressed.gz	http://snaptron.cs.jhu.edu/data/tcga/junctions_uncompressed.bgz	/project2/yangili1/snaptron/TCGA_samples.tsv	http://snaptron.cs.jhu.edu/data/tcga/samples.tsv
