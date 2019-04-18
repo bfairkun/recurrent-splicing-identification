@@ -37,20 +37,6 @@ rule download_chrom_sizes:
         wget -q -O - https://raw.githubusercontent.com/igvteam/igv/master/genomes/sizes/hg38.chrom.sizes | awk -F '\\t' -v OFS='\\t' 'NR<=24' | tee {output.chromesizes} | awk -F '\\t' -v OFS='\\t' '{{ print $1, "1", $2 }}' > {output.chromosomal_genome_bed}
         """
 
-# pseudocode:
-# rule intersectstuff.
-# input: leafcutter_cluster_by_chrom boolean,
-# junction_intersect_bed
-# snaptron split logs
-
-# output:
-# 1. leafcutter juncfile list
-# 2. split juncfiles
-
-# shell: 
-# python script to intersect by targets, piped to awk for .all or .chr.
-# awk to split
-
 rule make_junc_filelist:
     input:
         lambda wildcards: snaptron_samples.loc[{wildcards.sample}, "local_metadata_file"]
@@ -79,21 +65,6 @@ rule make_junc_files:
         python scripts/SplitSnaptronBySampleId.py -I {input.snaptron_file} -S {input.junction_filelist} --CreateEmptyOutputFiles > {output} && echo "job done" >> {output}
         """
 
-# rule make_leafcutter_cluster_juncfiles:
-#     input:
-#         expand("junction_filelist/{sample}.tsv", sample=snaptron_samples.index),
-#     output:
-#         "junction_filelist/AllSamples"
-#     log:
-#         "logs/make_leafcutter_cluster_juncfiles"
-#     shell:
-#         """
-#         cat {input} | awk '{{print $2}}' > {output} 2> {log}
-#         """
-
-# # For large numbers of samples, it may be more manageable to do paralelize
-# # leafcutter by chromosome. Do this by making .junc files per chromosome.
-
 rule make_bed_file_for_each_chrom:
     input:
         "MiscData/hg38.chrome.sizes"
@@ -104,34 +75,3 @@ rule make_bed_file_for_each_chrom:
         awk -F'\\t' -v OFS='\\t' '$1=="{wildcards.chrom}" {{print $1, 1, $2}}' {input} > {output}
         """
 
-# rule make_BedtoolsIntersectBatch_input_files:
-#     input:
-#         AllSamplesList = "junction_filelist/AllSamples",
-#         ChromBed = "MiscData/TargetBedFilesPerChrom/{chrom}.bed"
-#     output:
-#         "MiscData/make_BedtoolsIntersectBatch_input_files/{chrom}"
-#     shell:
-#         """ 
-#         mkdir -p juncfiles/AllSamples_PerChrom/{wildcards.chrom} &&
-#         cat {input.AllSamplesList} | awk -v OFS='\\t' '{{ n = split($1, a, "/"); print $1, "{input.ChromBed}", "juncfiles/AllSamples_PerChrom/{wildcards.chrom}/" a[n] }}' > {output}
-#         """
-
-# rule make_juncfile_per_chrom:
-#     input:
-#         "MiscData/make_BedtoolsIntersectBatch_input_files/{chrom}"
-#     output:
-#         "logs/make_juncfile_per_chrom/{chrom}"
-#     log:
-#     shell:
-#         """
-#         python scripts/BedtoolsIntserectBatch.py {input} 2> {output}
-#         """
-# rule make_leafcutter_juncfile_per_chrom:
-#     input:
-#         "MiscData/make_BedtoolsIntersectBatch_input_files/{chrom}"
-#     output:
-#         "MiscData/make_leafcutter_cluster_juncfiles/{chrom}"
-#     shell:
-#         """
-#         awk -F'\\t' '{{ print $3 }}' {input} > {output}
-#         """

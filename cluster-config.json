@@ -9,6 +9,9 @@
   {"mem" : 48000, "parition":"broadwl"},
 
   "leafcutter_cluster" :
-  {"mem" : 48000, "partition":"broadwl"}
+  {"mem" : 48000, "partition":"broadwl"},
+
+  "leafcutter_ds" :
+  {"mem" : 48000, "partition":"broadwl", "tasks-per-node": 4}
 }
 

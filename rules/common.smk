@@ -35,6 +35,7 @@ else:
 
 Samples_TargetJunctions = os.path.basename(juncfiles) + "_" + os.path.basename(junction_intersect_bed)
 temporary_clusterfiles = config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/".format(Samples_TargetJunctions=Samples_TargetJunctions)
+leafcutter_ds_outprefix = '{Samples_TargetJunctions}_{GroupFile}_'.format(Samples_TargetJunctions=Samples_TargetJunctions, GroupFile=os.path.basename(config["leafcutter_groupfile"]))
 
 if config["leafcutter_cluster_by_chrom"]:
     numers_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome=Chromosome_list)
@@ -42,3 +43,4 @@ if config["leafcutter_cluster_by_chrom"]:
 else:
     numers_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.numers", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
     denoms_to_gather = expand(config["scratch_prefix"] + "leafcutter/clustering/{Samples_TargetJunctions}/{chromosome}/leafcutter_perind.counts.denoms", Samples_TargetJunctions=Samples_TargetJunctions, chromosome="ChromosomalGenome")
+

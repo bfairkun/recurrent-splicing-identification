@@ -128,7 +128,6 @@ rule GatherDynamicBed:
         echo 'done' > {output}
         """
 
-
 # rule leafcutter_ds:
 #     input:
 #         numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
