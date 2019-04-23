@@ -12,6 +12,6 @@
   {"mem" : 48000, "partition":"broadwl"},
 
   "leafcutter_ds" :
-  {"mem" : 48000, "partition":"broadwl", "tasks-per-node": 4}
+  {"mem" : 16000, "partition":"broadwl", "tasks-per-node": 6}
 }
 

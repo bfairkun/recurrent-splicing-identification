@@ -15,6 +15,15 @@
 If you simply want to use this workflow, clone the [latest release](https://github.com/bfairkun/recurrent-splicing-identification).
 If you intend to modify and further develop this workflow, fork this repository. Please consider providing any generally applicable modifications via a pull request.
 
+
+Install dependencies with conda.
+```
+conda env create --file envs/recurrent-splicing.yaml
+conda activate leafcutter
+```
+
+Note that even though I named this environment `leafcutter`, it does not contain leafcutter software... I could not install leafcutter with conda. So you have to install leafcutter manually (see leafcutter documentation page) for R, and also have the leafcutter scripts accesible in PATH.
+
 ### Step 2: Configure workflow
 
 Configure the workflow according to your needs via editing the file `config.yaml`. Configure cluster settings in `cluster-config.json`

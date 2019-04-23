@@ -24,4 +24,10 @@ scripts/.snakemake*
 !.test/samples.tsv
 !snakemake.sbatch
 !cluster-config.json
-!R_project/*
+!R_project/
+R_project/*
+!R_project/Blood_sf3b1_contrast.groups.txt
+!R_project/Blood_sf3b1_contrast.juncfiles
+!R_project/DarmanDiffJunctions.LiftedToHg38.bed.flanked100K.bed
+!R_project/gencode.v26.exons.txt.gz
+*.swp

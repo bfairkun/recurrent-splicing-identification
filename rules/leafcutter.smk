@@ -1,4 +1,10 @@
 rule prepare_juncfiles_for_clustering:
+    """Intersects junction files at junction_intersect_bed defined in config
+    file, so that we don't have to run leafcutter_cluster on whole genome if it
+    is not necessary. This alalso handles splitting the junction files by
+    chromosome to run leafcutter chromosome by chromosome for better
+    parallelization on cluster and also so that memory requirements are more
+    reasonable."""
     input:
         bedfile = junction_intersect_bed,
         chromosome_beds = "MiscData/bedfiles/{chromosome}.bed",
@@ -129,24 +135,22 @@ rule GatherDynamicBed:
         """
 
 
-# rule leafcutter_ds:
-#     input:
-#         numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
-#         groupfile = config["leafcutter_groupfile"]
-#     output:
-#         "leafcutter/differential_splicing/{leafcutter_outprefix}_effect_sizes.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
-#         "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance".format(leafcutter_outprefix = leafcutter_ds_outprefix),
-#     threads: 1
-#     conda:
-#         "envs/leafcutter.yml"
-#     params:
-#         outputprefix = "-o leafcutter/differential_splicing/{leafcutter_outprefix}".format(leafcutter_outprefix = leafcutter_ds_outprefix),
-#         exons = "-e R_project/gencode.v26.exons.txt.gz"
-#     log:
-#         "logs/leafcutter_ds/{leafcutter_outprefix}.log".format(leafcutter_outprefix = leafcutter_ds_outprefix)
-#     shell:
-#         """
-#         mkdir -p leafcutter/differential_splicing/
-#         leafcutter_ds.R -p {threads} {params.outputprefix} {params.exons} {input.numers_merged_for_leafcutter_analysis} {input.groupfile}
-#         """
+rule leafcutter_ds:
+    input:
+        numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
+        groupfile = config["leafcutter_groupfile"]
+    output:
+        "leafcutter/differential_splicing/{leafcutter_outprefix}_effect_sizes.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+        "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+    threads: 4
+    params:
+        outputprefix = "-o leafcutter/differential_splicing/{leafcutter_outprefix}".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+        exons = "-e R_project/gencode.v26.exons.txt.gz"
+    log:
+        "logs/leafcutter_ds/{leafcutter_outprefix}.log".format(leafcutter_outprefix = leafcutter_ds_outprefix)
+    shell:
+        """
+        mkdir -p leafcutter/differential_splicing/
+        leafcutter_ds.R -p {threads} {params.outputprefix} {params.exons} {input.numers_merged_for_leafcutter_analysis} {input.groupfile}
+        """
 

@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description="Make aggregated bed file of juncti
 parser.add_argument('-C','--CountsFileIn',  help="leafcutter counts.gz table. Be careful, header should contain entry for row names", required=True)
 parser.add_argument('-G', '--GroupsFileIn', help="leafcutter groups file", required=True)
 parser.add_argument('-O', '--OutputFilePrefix', default="", help="Output file prefix")
-parser.add_argument('-OD', '--OutputDirectory', default="", help="Output directory")
+parser.add_argument('-OD', '--OutputDirectory', default="./", help="Output directory")
 parser.add_argument("--quiet", help="OPTIONAL. quiet the output verbosity", action="store_true")
 args = parser.parse_args()
 

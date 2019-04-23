@@ -13,7 +13,9 @@ scratch_prefix: "/scratch/midway2/bjf79/recurrent-splicing/"
 # Bed file to filter junctions on for leafcutter clustering. This is useful
 # because clustering all junctions for all samples can be a hassle. If none is
 # provided, will default to all junctions, which depending on the number of
-# samples may take very long or run into memory issues
+# samples may take very long or run into memory issues.
+# "R_project/DarmanDiffJunctions.LiftedToHg38.bed.flanked100K.bed" should work
+# for testing
 junction_intersect_bed: 
 
 # If true, some steps including leafclutter_cluster will be run on a
@@ -28,8 +30,10 @@ leafcutter_cluster_by_chrom: True
 # (I haven't written this Snakemake pipeline in the conventional way to do that
 # checking for you, as I would prefer avoiding making DAGS with tens of
 # thousands of files)
+# "R_project/Blood_sf3b1_contrast.juncfiles" should work for testing
 juncfiles: "R_project/Blood_sf3b1_contrast.juncfiles"
 
 # groups file as documented in leafcutter documentation for differential
 # splicing analysis.
+# "R_project/Blood_sf3b1_contrast.groups.txt" should work for testing
 leafcutter_groupfile: "R_project/Blood_sf3b1_contrast.groups.txt"
