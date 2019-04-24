@@ -1,3 +1,6 @@
+"""
+Generally, none of these rules need to be run because all the output files of these steps already exist if you are on Midway.
+"""
 def local_snaptron_file_TO_snaptron_wget_link(wildcards):
     """
     Based on the database file (stored as a snakemake wildcard), return the corresponding wget link to download snaptron data, as found in the samples.tsv file (stored as snaptron_samples data frame)

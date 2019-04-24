@@ -31,9 +31,9 @@ leafcutter_cluster_by_chrom: True
 # checking for you, as I would prefer avoiding making DAGS with tens of
 # thousands of files)
 # "R_project/Blood_sf3b1_contrast.juncfiles" should work for testing
-juncfiles: "R_project/Blood_sf3b1_contrast.juncfiles"
+juncfiles: "example_files/example2.juncfile"
 
 # groups file as documented in leafcutter documentation for differential
 # splicing analysis.
 # "R_project/Blood_sf3b1_contrast.groups.txt" should work for testing
-leafcutter_groupfile: "R_project/Blood_sf3b1_contrast.groups.txt"
+leafcutter_groupfile: "example_files/example2.groups.txt"
