@@ -141,7 +141,7 @@ rule leafcutter_ds:
         groupfile = config["leafcutter_groupfile"]
     output:
         "leafcutter/differential_splicing/{leafcutter_outprefix}_effect_sizes.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
-        "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+        "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
     threads: 4
     params:
         outputprefix = "-o leafcutter/differential_splicing/{leafcutter_outprefix}".format(leafcutter_outprefix = leafcutter_ds_outprefix),
