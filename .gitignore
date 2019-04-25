@@ -32,4 +32,6 @@ R_project/*
 !R_project/gencode.v26.exons.txt.gz
 !example_files/
 !example_files/*
+!MiscData/
+!MiscData/hg38.chrome.sizes
 *.swp
