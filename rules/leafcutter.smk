@@ -88,7 +88,7 @@ rule delete_temp_files:
     of files to the DAG
     """
     input:
-        numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind_numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
+        numers_merged_for_leafcutter_analysis = "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind.counts.numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions)
     output:
         "logs/delete_temp_files/{Samples_TargetJunctions}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
     shell:
@@ -151,6 +151,6 @@ rule leafcutter_ds:
     shell:
         """
         mkdir -p leafcutter/differential_splicing/
-        leafcutter_ds.R -p {threads} {params.outputprefix} {params.exons} {input.numers_merged_for_leafcutter_analysis} {input.groupfile}
+        leafcutter_ds.R -p {threads} {params.outputprefix} {params.exons} {input.numers_merged_for_leafcutter_analysis} {input.groupfile} &> {log}
         """
 

@@ -33,7 +33,7 @@ for group in Groups:
     with open(args.OutputDirectory + args.OutputFilePrefix + group + ".bed", "w") as fout:
         with gzip.open(args.CountsFileIn, 'rU') as f:
             for i,line in enumerate(f):
-                if i>0:
+                if i>=1:
                     l = line.strip('\n').split()
                     chrom, start, stop, cluster = l[0].split(':')
                     group_count_sum = (sum([int(i) for i in itemgetter(*group_indices)(l)]))
