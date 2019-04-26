@@ -34,4 +34,6 @@ R_project/*
 !example_files/*
 !MiscData/
 !MiscData/hg38.chrome.sizes
+!MiscData/bedfiles/
+!MiscData/bedfiles/ChromosomalGenome.bed
 *.swp
