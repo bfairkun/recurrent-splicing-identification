@@ -47,7 +47,7 @@ rule rearrange_leafcutter_cluster_counts:
         "logs/rearrange_leafcutter_cluster_counts/{Samples_TargetJunctions}/{{chromosome}}.log".format(Samples_TargetJunctions=Samples_TargetJunctions)
     shell:
         """
-        python3 scripts/ReorderLeafcutterClusterColumns.py {input} {output} 2> {log}
+        scripts/ReorderLeafcutterClusterColumns.py {input} {output} 2> {log}
         """
 
 rule make_numers_and_denoms:
@@ -107,8 +107,8 @@ rule AggregateGroupJunctionCounts:
         denoms_bed = dynamic("leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/denoms.{{group}}.bed".format(Samples_TargetJunctions = Samples_TargetJunctions)),
     shell:
         """
-        python scripts/MakeJunctionBed.py -C {input.numers_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/numers.
-        python scripts/MakeJunctionBed.py -C {input.denoms_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/denoms.
+        scripts/MakeJunctionBed.py -C {input.numers_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/numers.
+        scripts/MakeJunctionBed.py -C {input.denoms_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/denoms.
         """
 
 rule AggregateGroupJunctionRatioCounts:

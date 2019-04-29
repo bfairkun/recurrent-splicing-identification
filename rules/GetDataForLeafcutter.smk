@@ -65,7 +65,7 @@ rule make_junc_files:
         "logs/make_junc_files/{sample}.log"
     shell:
         """
-        python scripts/SplitSnaptronBySampleId.py -I {input.snaptron_file} -S {input.junction_filelist} --CreateEmptyOutputFiles > {output} && echo "job done" >> {output}
+        scripts/SplitSnaptronBySampleId.py -I {input.snaptron_file} -S {input.junction_filelist} --CreateEmptyOutputFiles > {output} && echo "job done" >> {output}
         """
 
 rule make_bed_file_for_each_chrom:
