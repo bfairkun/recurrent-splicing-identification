@@ -107,8 +107,8 @@ rule AggregateGroupJunctionCounts:
         denoms_bed = dynamic("leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/denoms.{{group}}.bed".format(Samples_TargetJunctions = Samples_TargetJunctions)),
     shell:
         """
-        scripts/MakeJunctionBed.py -C {input.numers_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/numers.
-        scripts/MakeJunctionBed.py -C {input.denoms_merged} -G {input.groupfile} -O leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/denoms.
+        scripts/MakeJunctionBed.py -C {input.numers_merged} -G {input.groupfile} -OD leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/ -O numers.
+        scripts/MakeJunctionBed.py -C {input.denoms_merged} -G {input.groupfile} -OD leafcutter/clustering/{Samples_TargetJunctions}/Merged/AggregateJuncFiles/ -O denoms.
         """
 
 rule AggregateGroupJunctionRatioCounts:
