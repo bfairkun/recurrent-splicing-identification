@@ -8,8 +8,8 @@ include: "rules/common.smk"
 rule all:
     input:
         "leafcutter/clustering/{Samples_TargetJunctions}/Merged/leafcutter_perind.counts.numers.gz".format(Samples_TargetJunctions=Samples_TargetJunctions),
-         "leafcutter/differential_splicing/{leafcutter_outprefix}_effect_sizes.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
-        "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+         # "leafcutter/differential_splicing/{leafcutter_outprefix}_effect_sizes.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
+        # "leafcutter/differential_splicing/{leafcutter_outprefix}_cluster_significance.txt".format(leafcutter_outprefix = leafcutter_ds_outprefix),
         "logs/delete_temp_files/{Samples_TargetJunctions}.log".format(Samples_TargetJunctions=Samples_TargetJunctions),
         "logs/GatherDyanamicBed/{Samples_TargetJunctions}.log".format(Samples_TargetJunctions=Samples_TargetJunctions),
         # expand("{snaptron_databses}", snaptron_databses = snaptron_samples["local_snaptron_file"]),
